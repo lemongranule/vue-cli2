@@ -4,66 +4,55 @@
 
 const path = require('path')
 
-module.exports = {
-  dev: {
 
-    // Paths
-    assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
-    proxyTable: {},
+const base = {
+    port: 6791,
+    staticRoot: '/static',
+    staticRootHttps: '/static',
+    appDownloadUrl: "http://a.app.qq.com/o/simple.jsp?pkgname=com.tttell.xmx",
 
-    // Various Dev Server settings
-    host: 'localhost', // can be overwritten by process.env.HOST
-    port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
-    autoOpenBrowser: false,
-    errorOverlay: true,
-    notifyOnErrors: true,
-    poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
+    leancloudAppId: "YmC8Hch4IJGg6DB1L7qTCJtF-gzGzoHsz",
+    leancloudAppKey: "8QqMudAT04q0OyIi02zBdSGi",
 
-    
-    /**
-     * Source Maps
-     */
+    qiniuBucket: "xiaomoxie-static",
+    qiniuBucketUrl: "https://xmx-static.tttell.com",
+    qiniuAccessKey: "sooib1GN4YUusrH9WKZSPJmDZeLfjT10GaEWmov4",
+    qiniuSecretKey: "gqOuYFv7XXxq5_csNqRpFKDB34h9q7lTbqnwoZRw",
+    qiniuThumb: "imageView2/1/w/200/h/200/q/75",
 
-    // https://webpack.js.org/configuration/devtool/#development
-    devtool: 'cheap-module-eval-source-map',
+    umengAppKeyIOS: "57eb67d267e58ed06800007c",
+    umengAppMasterSecretIOS: "hb5oqwr5q8xug6zvvrlw1k58rlmvmkzw",
+    umengAppKeyAndroid: "57ebf5d367e58ea42700060e",
+    umengAppMasterSecretAndroid: "h3vhhnllhvnpayk0klak56jsnq8mtgej",
+};
 
-    // If you have problems debugging vue-files in devtools,
-    // set this to false - it *may* help
-    // https://vue-loader.vuejs.org/en/options.html#cachebusting
-    cacheBusting: true,
 
-    cssSourceMap: true
-  },
+const dev = Object.assign({}, base, {
+    processes: 1,
+    env: require('./dev.env'),
+    domain: 'localhost:6791',
+    apiDomain: 'tttell.com/xmx/api',
+});
 
-  build: {
-    // Template for index.html
-    index: path.resolve(__dirname, '../dist/index.html'),
 
-    // Paths
-    assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+const prod = Object.assign({}, base, {
+    processes: -1,
+    env: require('./prod.env'),
+    domain: 'tttell.com/xmx/manager',
+    staticRoot: '/xmx/manager/static',
+    staticRootHttps: '/xmx/manager/static',
+    apiDomain: 'tttell.com/xmx/api',
+});
 
-    /**
-     * Source Maps
-     */
+const config = process.env.NODE_ENV === 'production' ? prod : dev;
 
-    productionSourceMap: true,
-    // https://webpack.js.org/configuration/devtool/#production
-    devtool: '#source-map',
-
-    // Gzip off by default as many popular static hosts such as
-    // Surge or Netlify already gzip all static assets for you.
-    // Before setting to `true`, make sure to:
-    // npm install --save-dev compression-webpack-plugin
-    productionGzip: false,
-    productionGzipExtensions: ['js', 'css'],
-
-    // Run the build command with an extra argument to
-    // View the bundle analyzer report after build finishes:
-    // `npm run build --report`
-    // Set to `true` or `false` to always turn it on or off
-    bundleAnalyzerReport: process.env.npm_config_report
-  }
+// 读取资源映射文件 assets.json
+const defaultAssets = { manifest: {}, vendor: {}, app: {}, signin: {}, apikit: {}, };
+try {
+    let assets = require('../assets.json');
+    config.assets = assets || defaultAssets;
+} catch (err) {
+    config.assets = defaultAssets;
 }
+console.log(config)
+module.exports = config;

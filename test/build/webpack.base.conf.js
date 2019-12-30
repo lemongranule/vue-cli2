@@ -2,39 +2,42 @@
 const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
-const vueLoaderConfig = require('./vue-loader.conf')
+const { VueLoaderPlugin } = require('vue-loader')
+require('./check-versions')() //检验版本插件是否对应
 
-function resolve (dir) {
+const ProgressBarPlugin = require('progress-bar-webpack-plugin')
+
+function resolve(dir) {
   return path.join(__dirname, '..', dir)
 }
-
-
 
 module.exports = {
   context: path.resolve(__dirname, '../'),
   entry: {
-    app: './src/main.js'
+    app: './client/app.js'
   },
   output: {
-    path: config.build.assetsRoot,
-    filename: '[name].js',
-    publicPath: process.env.NODE_ENV === 'production'
-      ? config.build.assetsPublicPath
-      : config.dev.assetsPublicPath
+    path: path.resolve(__dirname, '../dist/static'),
+    filename: 'js/[name].js',
+    publicPath: config.staticRoot
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
-      '@': resolve('src'),
+      '@': path.resolve(__dirname, '../client'),
+      'assets': path.resolve(__dirname, '../client/assets'),
+      'components': path.resolve(__dirname, '../client/components')
     }
   },
+  plugins: [
+    new VueLoaderPlugin(),
+    new ProgressBarPlugin()
+  ],
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.vue$/,
         loader: 'vue-loader',
-        options: vueLoaderConfig
       },
       {
         test: /\.js$/,
@@ -46,7 +49,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: utils.assetsPath('img/[name].[hash:7].[ext]')
+          name: 'img/[name].[hash:7].[ext]'
         }
       },
       {
@@ -54,7 +57,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: utils.assetsPath('media/[name].[hash:7].[ext]')
+          name: 'media/[name].[hash:7].[ext]'
         }
       },
       {
@@ -62,7 +65,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
+          name: 'fonts/[name].[hash:7].[ext]'
         }
       }
     ]
